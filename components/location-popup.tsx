@@ -1,15 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { LocationFeature, OpenHouseListing, iconMap } from "@/lib/mapbox/utils";
+import { LocationFeature, OpenHouseListing } from "@/lib/mapbox/utils";
 import {
-  LocateIcon,
   Navigation,
   Calendar,
   Clock,
-  Home,
-  Bath,
   Bed,
+  Bath,
   ExternalLink,
   Copy,
   Check,
@@ -19,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import Popup from "./map/map-popup";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
 
 type LocationPopupProps = {
   location: LocationFeature;
@@ -41,8 +40,6 @@ export function LocationPopup({ location, onClose }: LocationPopupProps) {
   const name = properties?.name || "Unknown Location";
   const address = properties?.full_address || properties?.address || "";
   const categories = properties?.poi_category || [];
-  // Removed unused variables brand and status
-  const maki = properties?.maki || "";
 
   const lat = geometry?.coordinates?.[1] || properties?.coordinates?.latitude;
   const lng = geometry?.coordinates?.[0] || properties?.coordinates?.longitude;
@@ -77,9 +74,11 @@ export function LocationPopup({ location, onClose }: LocationPopupProps) {
       <div className="w-[280px] sm:w-[320px]">
         {photoUrl && (
           <div className="relative w-full h-28 mb-2 rounded-t-lg overflow-hidden">
-            <img 
+            <Image 
               src={photoUrl} 
               alt={name} 
+              width={300}
+              height={200}
               className="w-full h-full object-cover"
             />
             <div className="absolute top-0 right-0 m-2">

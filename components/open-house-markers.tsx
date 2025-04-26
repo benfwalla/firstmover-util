@@ -193,7 +193,6 @@ export default function OpenHouseMarkers() {
   // Use a no-op function for hover handling instead of unused state
   const setHoveredLocation = useCallback((_location: LocationFeature | null) => {
     // Visual feedback handled directly in marker component
-    // Using underscore prefix for unused parameter
   }, []);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
