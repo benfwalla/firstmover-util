@@ -25,7 +25,7 @@ export function LocationMarker({ location, onHover, onClick, highlight = false }
         if (isHovered) {
           onHover(data);
         } else {
-          onHover(null as any); // We'll handle null in the parent component
+          onHover(null); // We'll handle null in the parent component
         }
       }}
       onClick={({ data }) => {

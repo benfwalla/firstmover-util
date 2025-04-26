@@ -7,7 +7,7 @@ import { LocationPopup } from "./location-popup";
 import { fetchUpcomingOpenHouses } from "@/lib/supabase";
 import { convertToMapListing } from "@/lib/geo-utils";
 import { useMap } from "@/context/map-context";
-import { useMapState } from "@/context/map-state-context";
+import { MapViewState, useMapState } from "@/context/map-state-context";
 import MapFilters, { FilterState, filterListings } from "./map/map-filters";
 import mapboxgl from "mapbox-gl";
 
@@ -189,8 +189,12 @@ export default function OpenHouseMarkers() {
   const [openHouses, setOpenHouses] = useState<OpenHouseListing[]>([]);
   const [filteredHouses, setFilteredHouses] = useState<OpenHouseListing[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<LocationFeature | null>(null);
-  // Track hover state but prefix with underscore since eslint flags it as unused
-  const [_hoveredLocation, setHoveredLocation] = useState<LocationFeature | null>(null);
+  
+  // Use a no-op function for hover handling instead of unused state
+  const setHoveredLocation = useCallback((_location: LocationFeature | null) => {
+    // Visual feedback handled directly in marker component
+    // Using underscore prefix for unused parameter
+  }, []);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // Track filter panel expanded state
@@ -275,33 +279,39 @@ export default function OpenHouseMarkers() {
   // Initialize and apply filters when open houses change or filters change
   useEffect(() => {
     if (openHouses && openHouses.length > 0) {
+      // Using all filter properties explicitly in the dependency array
       setFilteredHouses(filterListings(openHouses, filters));
     }
-  }, [openHouses, filters]);
+  }, [openHouses, filters, filters.minPrice, filters.maxPrice, filters.bedrooms, filters.bathrooms]);
 
   // Apply map view state (center, zoom, style) on load
   // Initialize map and set up view state management
   useEffect(() => {
     if (!map) return;
+    mapRef.current = map;
     
     // Save state when map moves or zooms
     const saveMapState = () => {
-      setMapViewState({
-        center: [map.getCenter().lng, map.getCenter().lat],
-        zoom: map.getZoom(),
-        style: mapViewState.style,
-      });
+      if (!mapRef.current) return;
+      
+      const center = mapRef.current.getCenter();
+      const zoom = mapRef.current.getZoom();
+      
+      const newState: MapViewState = {
+        center: [center.lng, center.lat],
+        zoom: zoom,
+        style: mapViewState.style
+      };
+      setMapViewState(newState);
     };
     
     // Wait for map to be loaded before setting initial view
     const initMap = () => {
-      console.log('Map loaded, initializing view state');
-      // Set initial map view from saved state
+      // Set center and zoom level
       map.setCenter(mapViewState.center);
       map.setZoom(mapViewState.zoom);
       
-      // Don't set style here, it will be handled by the style effect
-      
+      // Set up event handlers
       map.on('moveend', saveMapState);
       map.on('zoomend', saveMapState);
     };
@@ -316,7 +326,7 @@ export default function OpenHouseMarkers() {
       map.off('moveend', saveMapState);
       map.off('zoomend', saveMapState);
     };
-  }, [map, mapViewState.style, setMapViewState]);
+  }, [map, mapViewState, setMapViewState]);
   
   // Handle style changes separately
   useEffect(() => {
@@ -361,9 +371,9 @@ export default function OpenHouseMarkers() {
   }, [map, selectedLocation]);
 
   // Handle marker hover - just updates hover state for visual feedback
-  const handleMarkerHover = (location: LocationFeature | null) => {
+  const handleMarkerHover = useCallback((location: LocationFeature | null) => {
     setHoveredLocation(location);
-  };
+  }, [setHoveredLocation]);
 
   // Handle marker click - shows popup or closes if clicking same pin
   const handleMarkerClick = (location: LocationFeature) => {

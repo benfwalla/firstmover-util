@@ -1,7 +1,7 @@
 "use client";
 
 import mapboxgl, { MarkerOptions } from "mapbox-gl";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 
 import { useMap } from "@/context/map-context";
 import { LocationFeature } from "@/lib/mapbox/utils";
@@ -46,7 +46,7 @@ export default function Marker({
   const markerRef = useRef<HTMLDivElement | null>(null);
   const markerInstance = useRef<mapboxgl.Marker | null>(null);
 
-  const handleHover = (isHovered: boolean) => {
+  const handleHover = useCallback((isHovered: boolean) => {
     if (onHover && markerInstance.current) {
       onHover({
         isHovered,
@@ -55,9 +55,9 @@ export default function Marker({
         data,
       });
     }
-  };
+  }, [onHover, longitude, latitude, data, markerInstance]);
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (onClick && markerInstance.current) {
       onClick({
         position: { longitude, latitude },
@@ -65,7 +65,7 @@ export default function Marker({
         data,
       });
     }
-  };
+  }, [onClick, longitude, latitude, data, markerInstance]);
 
   useEffect(() => {
     const markerEl = markerRef.current;
