@@ -257,7 +257,7 @@ export default function MapFilters({
             </div>
 
             <div className="text-xs text-center text-muted-foreground mt-1">
-              Specific times might be out of date. Please check the listing's StreetEasy page to confirm.
+              Specific times might be out of date. Please check the listing&apos;s StreetEasy page to confirm.
             </div>
           </CardContent>
         )}

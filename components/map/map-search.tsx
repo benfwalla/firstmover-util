@@ -202,7 +202,8 @@ export default function MapSearch() {
         <LocationMarker
           key={location.properties.mapbox_id}
           location={location}
-          onHover={(data: LocationFeature) => setSelectedLocation(data)}
+          onHover={(data) => data ? setSelectedLocation(data) : setSelectedLocation(null)}
+          onClick={(data) => setSelectedLocation(data)}
         />
       ))}
 

@@ -2,17 +2,17 @@
 
 import { Home, MapPin } from "lucide-react";
 
-import { LocationFeature, OpenHouseListing } from "@/lib/mapbox/utils";
+import { LocationFeature } from "@/lib/mapbox/utils";
 import Marker from "./map/map-marker";
 
 interface LocationMarkerProps {
   location: LocationFeature;
-  onHover: (data: LocationFeature) => void;
-  onClick?: (data: LocationFeature) => void;
+  onHover: (location: LocationFeature | null) => void;
+  onClick: (location: LocationFeature) => void;
   highlight?: boolean;
 }
 
-export function LocationMarker({ location, onHover, onClick, highlight }: LocationMarkerProps) {
+export function LocationMarker({ location, onHover, onClick, highlight = false }: LocationMarkerProps) {
   // Check if this is an open house listing with specific properties
   const isOpenHouse = 'openHouseDate' in location.properties;
   return (

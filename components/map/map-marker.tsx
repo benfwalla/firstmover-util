@@ -9,7 +9,7 @@ import { LocationFeature } from "@/lib/mapbox/utils";
 type Props = {
   longitude: number;
   latitude: number;
-  data: any;
+  data: LocationFeature;
   onHover?: ({
     isHovered,
     position,
@@ -71,15 +71,10 @@ export default function Marker({
     const markerEl = markerRef.current;
     if (!map || !markerEl) return;
 
-    const handleMouseEnter = () => handleHover(true);
-    const handleMouseLeave = () => handleHover(false);
+    markerEl.addEventListener('click', () => handleClick());
+    markerEl.addEventListener('mouseenter', () => handleHover(true));
+    markerEl.addEventListener('mouseleave', () => handleHover(false));
 
-    // Add event listeners
-    markerEl.addEventListener("mouseenter", handleMouseEnter);
-    markerEl.addEventListener("mouseleave", handleMouseLeave);
-    markerEl.addEventListener("click", handleClick);
-
-    // Marker options
     const options = {
       element: markerEl,
       ...props,
@@ -93,12 +88,12 @@ export default function Marker({
       // Cleanup on unmount
       if (markerInstance.current) markerInstance.current.remove();
       if (markerEl) {
-        markerEl.removeEventListener("mouseenter", handleMouseEnter);
-        markerEl.removeEventListener("mouseleave", handleMouseLeave);
-        markerEl.removeEventListener("click", handleClick);
+        markerEl.removeEventListener("click", () => handleClick());
+        markerEl.removeEventListener("mouseenter", () => handleHover(true));
+        markerEl.removeEventListener("mouseleave", () => handleHover(false));
       }
     };
-  }, [map, longitude, latitude, props]);
+  }, [map, longitude, latitude, props, handleClick, handleHover]);
 
   return (
     <div>

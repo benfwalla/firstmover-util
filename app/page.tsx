@@ -1,4 +1,4 @@
-import Image from "next/image";
+// Next.js imports
 import Link from "next/link";
 import { Home as HomeIcon, MapPin, Calendar, ExternalLink } from "lucide-react";
 
@@ -56,7 +56,7 @@ export default function Home() {
               This interactive map is designed to be embedded in the FirstMover marketing site, providing users with a seamless experience for discovering open houses in New York City.
             </p>
             <p>
-              With FirstMover, you'll get StreetEasy notifications before anyone else, giving you a competitive edge in the NYC real estate market.
+              With FirstMover, you&apos;ll get StreetEasy notifications before anyone else, giving you a competitive edge in the NYC real estate market.
             </p>
             <p className="flex items-center gap-2 text-sm text-muted-foreground pt-4">
               <Calendar className="h-4 w-4" />

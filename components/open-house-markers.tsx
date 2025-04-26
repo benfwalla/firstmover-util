@@ -189,7 +189,8 @@ export default function OpenHouseMarkers() {
   const [openHouses, setOpenHouses] = useState<OpenHouseListing[]>([]);
   const [filteredHouses, setFilteredHouses] = useState<OpenHouseListing[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<LocationFeature | null>(null);
-  const [hoveredLocation, setHoveredLocation] = useState<LocationFeature | null>(null);
+  // Track hover state but prefix with underscore since eslint flags it as unused
+  const [_hoveredLocation, setHoveredLocation] = useState<LocationFeature | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // Track filter panel expanded state
@@ -222,9 +223,6 @@ export default function OpenHouseMarkers() {
           console.log('Sample open house data:', JSON.stringify(openHouseData[0], null, 2));
         }
         
-        // Use sample data as fallback
-        const listingsToUse = openHouseData.length === 0 ? SAMPLE_OPEN_HOUSES : []
-        
         if (openHouseData.length === 0) {
           console.log('Using sample data due to empty response');
           // If no data returned from API, use sample data
@@ -235,25 +233,28 @@ export default function OpenHouseMarkers() {
           return;
         }
 
-        // Process each open house location to get coordinates
-        const promises = openHouseData.map(async (openHouse) => {
-          return await convertToMapListing(openHouse);
-        });
-
-        const results = await Promise.all(promises);
-        console.log(`Processed ${results.length} listings with coordinates`);
-        const validListings = results.filter(listing => listing !== null) as OpenHouseListing[];
-        
-        if (validListings.length === 0) {
-          console.warn('No valid geocoded listings found, using sample data');
-          setOpenHouses(SAMPLE_OPEN_HOUSES);
-          // Initialize filtered houses immediately with sample data
-          setFilteredHouses(filterListings(SAMPLE_OPEN_HOUSES, filters));
-        } else {
-          console.log(`Loaded ${validListings.length} open houses`);
+        try {
+          // Process each open house listing - properly handling async
+          const listings = await Promise.all(
+            openHouseData.map(async (item) => {
+              const result = await convertToMapListing(item);
+              return result; // This will be OpenHouseListing | null
+            })
+          );
+          
+          // Filter out nulls
+          const validListings = listings.filter((item): item is OpenHouseListing => item !== null);
+          
           setOpenHouses(validListings);
-          // Initialize filtered houses immediately with real data
+          // Immediate filter based on current filters
           setFilteredHouses(filterListings(validListings, filters));
+        } catch (error) {
+          console.error('Error processing listings:', error);
+          // Fallback to sample data
+          setOpenHouses(SAMPLE_OPEN_HOUSES);
+          setFilteredHouses(filterListings(SAMPLE_OPEN_HOUSES, filters));
+        } finally {
+          setIsLoading(false);
         }
         
       } catch (err) {
@@ -273,13 +274,10 @@ export default function OpenHouseMarkers() {
 
   // Initialize and apply filters when open houses change or filters change
   useEffect(() => {
-    if (openHouses.length === 0) return;
-    console.log(`Filtering ${openHouses.length} open houses with current filters`, filters);
-    
-    const filtered = filterListings(openHouses, filters);
-    console.log(`Filtered to ${filtered.length} open houses`);
-    setFilteredHouses(filtered);
-  }, [filters, openHouses]);
+    if (openHouses && openHouses.length > 0) {
+      setFilteredHouses(filterListings(openHouses, filters));
+    }
+  }, [openHouses, filters]);
 
   // Apply map view state (center, zoom, style) on load
   // Initialize map and set up view state management

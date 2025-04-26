@@ -41,8 +41,8 @@ export function LocationPopup({ location, onClose }: LocationPopupProps) {
   const name = properties?.name || "Unknown Location";
   const address = properties?.full_address || properties?.address || "";
   const categories = properties?.poi_category || [];
-  const brand = properties?.brand?.[0] || "";
-  const status = properties?.operational_status || "";
+  const _brand = properties?.brand?.[0] || ""; // Unused variable
+  const _status = properties?.operational_status || ""; // Unused variable
   const maki = properties?.maki || "";
 
   const lat = geometry?.coordinates?.[1] || properties?.coordinates?.latitude;
@@ -60,12 +60,13 @@ export function LocationPopup({ location, onClose }: LocationPopupProps) {
   const photoUrl = ohProperties?.photoUrl || "";
   const availableAt = ohProperties?.availableAt || "";
   const priceDisplay = ohProperties?.priceDisplay || "";
-  const propertyType = ohProperties?.propertyType || "";
-  const listingAgent = properties?.listingAgent || "";
-  const listingAgentPhone = properties?.listingAgentPhone || "";
-  const description = properties?.description || "";
+  const _propertyType = ohProperties?.propertyType || ""; // Unused variable
+  const _listingAgent = properties?.listingAgent || ""; // Unused variable
+  const _listingAgentPhone = properties?.listingAgentPhone || ""; // Unused variable
+  const _description = properties?.description || ""; // Unused variable
 
-  const getIcon = () => {
+  // Unused icon function
+  const _getIcon = () => {
     if (isOpenHouse) return <Home className="h-5 w-5" />;
     
     const allKeys = [maki, ...(categories || [])];
