@@ -278,10 +278,9 @@ export default function OpenHouseMarkers() {
   // Initialize and apply filters when open houses change or filters change
   useEffect(() => {
     if (openHouses && openHouses.length > 0) {
-      // Using all filter properties explicitly in the dependency array
       setFilteredHouses(filterListings(openHouses, filters));
     }
-  }, [openHouses, filters, filters.minPrice, filters.maxPrice, filters.bedrooms, filters.bathrooms]);
+  }, [openHouses, filters]);
 
   // Apply map view state (center, zoom, style) on load
   // Initialize map and set up view state management
