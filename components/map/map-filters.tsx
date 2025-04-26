@@ -175,10 +175,10 @@ export default function MapFilters({
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="flex items-center gap-1 bg-white hover:bg-gray-100"
+                className="flex items-center gap-1 bg-white hover:bg-gray-100 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
                 onClick={() => isExpanded ? handleCollapse() : handleExpand()}
               >
-                <SlidersHorizontal className="h-4 w-4" />
+                <SlidersHorizontal className="h-4 w-4 text-gray-800 dark:text-white" />
                 <span>Filters</span>
                 {activeFilterCount > 0 && (
                   <Badge variant="secondary" className="ml-1 bg-background">
@@ -241,7 +241,13 @@ export default function MapFilters({
                     key={option.value}
                     variant={filters.bedrooms.includes(option.value) ? "default" : "outline"}
                     size="sm"
-                    className="w-full px-2.5" // Increased px
+                    className={cn(
+                      "flex-1 min-w-[40px]",
+                      filters.bedrooms.includes(option.value)
+                        ? "bg-blue-600 hover:bg-blue-700 text-white"
+                        : "bg-white hover:bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600",
+                      option.value === "studio" ? "px-3" : "" // Add more padding specifically for Studio
+                    )}
                     onClick={() => handleBedroomChange(option.value)}
                   >
                     {option.label}

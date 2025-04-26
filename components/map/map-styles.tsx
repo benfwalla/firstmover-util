@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   MapIcon,
-  MoonIcon,
   SatelliteIcon,
   SunIcon,
 } from "lucide-react";
@@ -34,11 +33,6 @@ const STYLE_OPTIONS: StyleOption[] = [
     label: "Light",
     icon: <SunIcon className="w-5 h-5" />,
   },
-  {
-    id: "dark-v11",
-    label: "Dark",
-    icon: <MoonIcon className="w-5 h-5" />,
-  },
 ];
 
 export default function MapStyles() {
@@ -50,13 +44,8 @@ export default function MapStyles() {
     if (!map) return;
     map.setStyle(`mapbox://styles/mapbox/${value}`);
     setActiveStyle(value);
+    setTheme("light");
   };
-
-  useEffect(() => {
-    if (activeStyle === "dark-v11") {
-      setTheme("dark");
-    } else setTheme("light");
-  }, [activeStyle, setTheme]);
 
   return (
     <aside className="absolute bottom-4 left-4 z-10">
