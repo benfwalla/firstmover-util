@@ -191,7 +191,7 @@ export default function OpenHouseMarkers() {
   const [selectedLocation, setSelectedLocation] = useState<LocationFeature | null>(null);
   
   // Use a no-op function for hover handling instead of unused state
-  const setHoveredLocation = useCallback((_location: LocationFeature | null) => {
+  const setHoveredLocation = useCallback(() => {
     // Visual feedback handled directly in marker component
   }, []);
   const [isLoading, setIsLoading] = useState(true);
@@ -371,7 +371,7 @@ export default function OpenHouseMarkers() {
 
   // Handle marker hover - just updates hover state for visual feedback
   const handleMarkerHover = useCallback((location: LocationFeature | null) => {
-    setHoveredLocation(location);
+    setHoveredLocation(); // Call with no arguments
   }, [setHoveredLocation]);
 
   // Handle marker click - shows popup or closes if clicking same pin
