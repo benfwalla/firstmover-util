@@ -370,7 +370,7 @@ export default function OpenHouseMarkers() {
   }, [map, selectedLocation]);
 
   // Handle marker hover - just updates hover state for visual feedback
-  const handleMarkerHover = useCallback((location: LocationFeature | null) => {
+  const handleMarkerHover = useCallback((_location: LocationFeature | null) => {
     setHoveredLocation(); // Call with no arguments
   }, [setHoveredLocation]);
 
