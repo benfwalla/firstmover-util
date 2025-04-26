@@ -68,7 +68,6 @@ export function LocationPopup({ location, onClose }: LocationPopupProps) {
       focusAfterOpen={false}
       // Better positioning to avoid filter panel in the top-left
       maxWidth="320px"
-      anchor="top"
       offset={[0, 10]}
     >
       <div className="w-[280px] sm:w-[320px]">

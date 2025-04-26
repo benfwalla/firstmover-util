@@ -156,35 +156,46 @@ export default function MapFilters({
 
   return (
     <div className={cn(
-      "absolute top-4 left-1/2 sm:left-4 z-10 transition-all duration-200",
-      isExpanded ? "w-[90vw] sm:w-[450px]" : "w-auto max-w-[200px]",
-      "-translate-x-1/2 sm:translate-x-0"
+      "absolute top-4 z-10 transition-all duration-200",
+      // Mobile: Center horizontally
+      "left-1/2 -translate-x-1/2",
+      // Desktop: Align exactly 16px from left, matching the listing panel
+      "sm:left-[16px] sm:translate-x-0",
+      // Width adjustments: Expanded takes 340px on desktop, Collapsed takes auto width but limited max-width
+      isExpanded 
+        ? "w-[90vw] sm:w-[340px]" 
+        : activeFilterCount > 0 
+          ? "w-auto max-w-[240px]" // Increased max-width when filters are active and collapsed
+          : "w-auto max-w-[120px]" // Original smaller max-width when no filters are active
     )}>
       <Card className="shadow-lg overflow-hidden">
         <div className="p-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="min-w-[80px] flex items-center gap-1 bg-white hover:bg-gray-100"
-              onClick={() => isExpanded ? handleCollapse() : handleExpand()}
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              <span>Filters</span>
-              {activeFilterCount > 0 && (
-                <Badge variant="secondary" className="ml-1 bg-background">
-                  {activeFilterCount}
-                </Badge>
-              )}
-            </Button>
+            <div className="flex items-center gap-1.5">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="flex items-center gap-1 bg-white hover:bg-gray-100"
+                onClick={() => isExpanded ? handleCollapse() : handleExpand()}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                <span>Filters</span>
+                {activeFilterCount > 0 && (
+                  <Badge variant="secondary" className="ml-1 bg-background">
+                    {activeFilterCount}
+                  </Badge>
+                )}
+              </Button>
+            </div>
+            {/* Always show Reset button when filters are active, regardless of expanded state */}
             {activeFilterCount > 0 && (
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={handleReset}
-                className="p-1 h-8"
+                className="flex-shrink-0 flex items-center whitespace-nowrap px-2 h-8"
               >
-                <RotateCcw className="size-3.5 mr-1" />
+                <RotateCcw className="h-3.5 w-3.5 mr-1" />
                 Reset
               </Button>
             )}
@@ -224,13 +235,13 @@ export default function MapFilters({
             
             <div>
               <p className="text-sm mb-1.5 font-medium">Bedrooms</p>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="grid grid-cols-6 gap-1.5"> {/* Force 6 columns to fit all options in one row */}
                 {BEDROOM_OPTIONS.map(option => (
                   <Button
                     key={option.value}
                     variant={filters.bedrooms.includes(option.value) ? "default" : "outline"}
                     size="sm"
-                    className="flex-1"
+                    className="w-full px-2.5" // Increased px
                     onClick={() => handleBedroomChange(option.value)}
                   >
                     {option.label}
@@ -241,13 +252,13 @@ export default function MapFilters({
             
             <div>
               <p className="text-sm mb-1.5 font-medium">Bathrooms</p>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="grid grid-cols-5 gap-1.5"> {/* Force 5 columns for all bathroom options in one row */}
                 {BATHROOM_OPTIONS.map(option => (
                   <Button
                     key={option.value}
                     variant={filters.bathrooms === option.value ? "default" : "outline"}
                     size="sm"
-                    className="flex-1"
+                    className="w-full px-2.5" // Increased px
                     onClick={() => handleBathroomChange(option.value)}
                   >
                     {option.label}

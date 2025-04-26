@@ -3,11 +3,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { LocationFeature, OpenHouseListing } from "@/lib/mapbox/utils";
 import { LocationMarker } from "./location-marker";
-import { LocationPopup } from "./location-popup";
 import { fetchUpcomingOpenHouses } from "@/lib/supabase";
 import { convertToMapListing } from "@/lib/geo-utils";
 import { useMap } from "@/context/map-context";
 import { MapViewState, useMapState } from "@/context/map-state-context";
+import ListingDetailPanel from "./listing-detail-panel"; 
 import MapFilters, { FilterState, filterListings } from "./map/map-filters";
 import mapboxgl from "mapbox-gl";
 
@@ -386,18 +386,11 @@ export default function OpenHouseMarkers() {
     }
   };
 
-  // Handle popup close button click
-  const handlePopupClose = () => {
-    setSelectedLocation(null);
-  };
-  
   // Handle filter changes
   const handleFiltersChange = useCallback((newFilters: FilterState) => {
     setFilters(newFilters);
   }, [setFilters]);
   
-  // No longer using clustering
-
   // Handle filter expansion - dismiss any open popups
   const handleFilterExpand = useCallback(() => {
     if (selectedLocation) {
@@ -410,47 +403,84 @@ export default function OpenHouseMarkers() {
   const handleFilterCollapse = useCallback(() => {
     setIsFilterExpanded(false);
   }, []);
-  
+
+  // Container for detail panel and filters - separate positioning for mobile vs desktop
+  const mapPanelStyles = {
+    desktop: {
+      container: "hidden md:block", // Only visible on desktop (md+)
+      filters: "absolute top-4 left-[16px] z-20", // Exact pixel left positioning for perfect alignment
+      listing: "absolute top-[100px] left-[16px] z-20 w-[320px]" // Matching exact pixel positioning
+    },
+    mobile: {
+      container: "block md:hidden", // Only visible on mobile
+      filters: "absolute top-4 left-4 z-20", // Position filters at top-left
+      listing: "fixed bottom-0 left-0 right-0 z-20" // Position listing as bottom sheet
+    }
+  };
+
   return (
     <>
-      <MapFilters 
-        onFiltersChange={handleFiltersChange} 
-        onExpand={handleFilterExpand}
-        onCollapse={handleFilterCollapse}
-        isExpanded={isFilterExpanded}
-        setIsExpanded={setIsFilterExpanded}
-      />
-    
-      {isLoading ? (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-background/90 p-4 rounded-lg shadow-lg">
-          <div className="flex items-center justify-center space-x-2">
-            <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full"></div>
-            <span>Loading open houses...</span>
-          </div>
+      {/* Desktop layout - hidden on mobile */}
+      <div className={mapPanelStyles.desktop.container}>
+        <div className={mapPanelStyles.desktop.filters}>
+          <MapFilters 
+            onFiltersChange={handleFiltersChange} 
+            onExpand={handleFilterExpand}
+            onCollapse={handleFilterCollapse}
+            isExpanded={isFilterExpanded}
+            setIsExpanded={setIsFilterExpanded}
+          />
         </div>
-      ) : error ? (
+        {selectedLocation && (
+          <div className={mapPanelStyles.desktop.listing}>
+            <ListingDetailPanel
+              selectedLocation={selectedLocation}
+              onClose={() => setSelectedLocation(null)} 
+            />
+          </div>
+        )}
+      </div>
+      
+      {/* Mobile layout - hidden on desktop */}
+      <div className={mapPanelStyles.mobile.container}>
+        <div className={mapPanelStyles.mobile.filters}>
+          <MapFilters 
+            onFiltersChange={handleFiltersChange} 
+            onExpand={handleFilterExpand}
+            onCollapse={handleFilterCollapse}
+            isExpanded={isFilterExpanded}
+            setIsExpanded={setIsFilterExpanded}
+          />
+        </div>
+        {selectedLocation && (
+          <div className={mapPanelStyles.mobile.listing}>
+            <ListingDetailPanel
+              selectedLocation={selectedLocation}
+              onClose={() => setSelectedLocation(null)} 
+            />
+          </div>
+        )}
+      </div>
+    
+      {error ? (
         <div className="absolute top-4 left-4 right-4 z-10 bg-destructive/90 text-destructive-foreground p-4 rounded-lg">
           <p className="text-sm font-medium">{error}</p>
         </div>
       ) : null}
 
       {/* Show individual markers */}
-      {filteredHouses.map((location) => (
-        <LocationMarker
-          key={location.properties.mapbox_id}
-          location={location}
-          onHover={handleMarkerHover}
-          onClick={handleMarkerClick}
-          highlight={selectedLocation?.properties.mapbox_id === location.properties.mapbox_id}
-        />
-      ))}
-
-      {selectedLocation && (
-        <LocationPopup
-          location={selectedLocation}
-          onClose={handlePopupClose}
-        />
-      )}
+      {filteredHouses.map((location) => {
+        const isSelected = selectedLocation?.properties.mapbox_id === location.properties.mapbox_id;
+        return (
+          <LocationMarker
+            key={location.properties.mapbox_id}
+            location={location}
+            onHover={handleMarkerHover}
+            onClick={handleMarkerClick}
+            highlight={isSelected} // Pass highlight status to the imported component
+          />
+        );
+      })}
     </>
   );
 }
