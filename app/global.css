@@ -1,0 +1,20 @@
+/* Add custom styles for the fixed-center popups */
+.mapboxgl-popup.fixed-center {
+  /* Override mapbox positioning to ensure it's always in viewport center */
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  max-width: 90vw !important;
+}
+
+/* Style the popup tip/arrow to be hidden since we're not attaching to a marker */
+.mapboxgl-popup.fixed-center .mapboxgl-popup-tip {
+  display: none;
+}
+
+/* Ensure popup content has proper margin and is centered */
+.mapboxgl-popup.fixed-center .mapboxgl-popup-content {
+  margin: 0 auto;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
