@@ -194,7 +194,6 @@ export default function OpenHouseMarkers() {
   const setHoveredLocation = useCallback(() => {
     // Visual feedback handled directly in marker component
   }, []);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // Track filter panel expanded state
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
@@ -203,7 +202,6 @@ export default function OpenHouseMarkers() {
   useEffect(() => {
     async function fetchOpenHouses() {
       try {
-        setIsLoading(true);
         setError(null);
         
         // Log Supabase URL and key prefix to debug (we'll mask most of the key)
@@ -232,7 +230,6 @@ export default function OpenHouseMarkers() {
           setOpenHouses(SAMPLE_OPEN_HOUSES);
           // Initialize filtered houses immediately
           setFilteredHouses(filterListings(SAMPLE_OPEN_HOUSES, filters));
-          setIsLoading(false);
           return;
         }
 
@@ -257,7 +254,6 @@ export default function OpenHouseMarkers() {
           setOpenHouses(SAMPLE_OPEN_HOUSES);
           setFilteredHouses(filterListings(SAMPLE_OPEN_HOUSES, filters));
         } finally {
-          setIsLoading(false);
         }
         
       } catch (err) {
@@ -268,7 +264,6 @@ export default function OpenHouseMarkers() {
         // Initialize filtered houses immediately with sample data
         setFilteredHouses(filterListings(SAMPLE_OPEN_HOUSES, filters));
       } finally {
-        setIsLoading(false);
       }
     }
     
