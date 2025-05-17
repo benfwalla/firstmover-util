@@ -28,9 +28,10 @@ const DEFAULT_FILTERS: FilterState = {
   maxPrice: "",
   bedrooms: ["any"],
   bathrooms: "any",
+  dateRange: 'all', // Default to showing all open houses
 };
 
-const MapStateContext = createContext<MapStateContextType | undefined>(undefined);
+export const MapStateContext = createContext<MapStateContextType | undefined>(undefined);
 
 // Storage keys
 const FILTERS_STORAGE_KEY = "firstmover-map-filters";
@@ -51,7 +52,7 @@ function getFromStorage<T>(key: string, fallback: T): T {
         return JSON.parse(saved) as T;
       }
     } catch (e) {
-      console.error(`Error retrieving ${key} from storage:`, e);
+      // Error retrieving data from storage
     }
   }
   return fallback;

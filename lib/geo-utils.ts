@@ -18,7 +18,7 @@ export async function geocodeAddress(address: string): Promise<[number, number] 
     
     return null;
   } catch (error) {
-    console.error('Error geocoding address:', error);
+    // Error geocoding address
     return null;
   }
 }
@@ -90,7 +90,7 @@ export function formatOpenHouseDateTime(
       time: `${formattedStartTime} - ${formattedEndTime}`
     };
   } catch (error) {
-    console.error('Error formatting date time:', error);
+    // Error formatting date time
     // Fallback to basic formatting
     return {
       date: startTime.split(' ')[0], // Just the date part
@@ -114,7 +114,7 @@ export async function convertToMapListing(openHouse: OpenHouseData): Promise<Ope
     }
     
     if (!coordinates) {
-      console.warn(`Could not geocode address: ${fullAddress}`);
+      // Could not geocode address
       return null;
     }
     
@@ -191,7 +191,7 @@ export async function convertToMapListing(openHouse: OpenHouseData): Promise<Ope
     
     return listing;
   } catch (error) {
-    console.error('Error converting to map listing:', error);
+    // Error converting to map listing
     return null;
   }
 }

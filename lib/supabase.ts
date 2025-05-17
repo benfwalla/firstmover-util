@@ -45,24 +45,23 @@ export async function fetchUpcomingOpenHouses(): Promise<OpenHouseData[]> {
     const { data, error } = await supabase.rpc('upcoming_open_houses');
     
     if (error) {
-      console.error('Error fetching open houses:', error.message || error);
-      console.error('Error details:', JSON.stringify(error));
+      // Error fetching open houses
       throw error;
     }
     
     if (!data || data.length === 0) {
-      console.log('No upcoming open houses found');
+
       return [];
     }
     
     // Log the first item to debug
     if (data.length > 0) {
-      console.log('Sample open house data:', JSON.stringify(data[0], null, 2));
+
     }
     
     return data;
   } catch (error) {
-    console.error('Error fetching open houses:', error);
+    // Error fetching open houses
     // Return empty array instead of throwing to avoid breaking the UI
     return [];
   }

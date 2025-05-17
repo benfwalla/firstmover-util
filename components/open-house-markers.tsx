@@ -195,8 +195,8 @@ export default function OpenHouseMarkers() {
     // Visual feedback handled directly in marker component
   }, []);
   const [error, setError] = useState<string | null>(null);
-  // Track filter panel expanded state
-  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+  // Track filter panel expanded state - default to true to show filters expanded on load
+  const [isFilterExpanded, setIsFilterExpanded] = useState(true);
 
   // Fetch real open house data from Supabase
   useEffect(() => {
@@ -210,22 +210,10 @@ export default function OpenHouseMarkers() {
           ? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.substring(0, 8) + '...' 
           : 'Not set';
         
-        console.log('Supabase config:', { 
-          url: supabaseUrl,
-          keyPrefix: anonKeyPrefix,
-        });
-        
         const openHouseData = await fetchUpcomingOpenHouses();
-        console.log('Open house data fetched:', 
-          openHouseData.length > 0 ? `${openHouseData.length} listings` : 'No listings');
-        
-        // If first item exists, log it to debug format
-        if (openHouseData.length > 0) {
-          console.log('Sample open house data:', JSON.stringify(openHouseData[0], null, 2));
-        }
         
         if (openHouseData.length === 0) {
-          console.log('Using sample data due to empty response');
+
           // If no data returned from API, use sample data
           setOpenHouses(SAMPLE_OPEN_HOUSES);
           // Initialize filtered houses immediately
@@ -249,7 +237,7 @@ export default function OpenHouseMarkers() {
           // Immediate filter based on current filters
           setFilteredHouses(filterListings(validListings, filters));
         } catch (error) {
-          console.error('Error processing listings:', error);
+          // Error processing listings
           // Fallback to sample data
           setOpenHouses(SAMPLE_OPEN_HOUSES);
           setFilteredHouses(filterListings(SAMPLE_OPEN_HOUSES, filters));
@@ -257,7 +245,7 @@ export default function OpenHouseMarkers() {
         }
         
       } catch (err) {
-        console.error('Error fetching open houses:', err);
+        // Error fetching open houses
         setError('Failed to load open houses');
         // Fallback to sample data
         setOpenHouses(SAMPLE_OPEN_HOUSES);
@@ -324,7 +312,7 @@ export default function OpenHouseMarkers() {
   // Handle style changes separately
   useEffect(() => {
     if (!map) return;
-    console.log(`Setting map style to: ${mapViewState.style}`);
+
     
     const changeStyle = () => {
       // Set the style once the map is ready

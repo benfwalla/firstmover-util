@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { MapStateContext, useMapState } from "@/context/map-state-context";
 import {
   Card,
   CardContent,
@@ -8,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { X, SlidersHorizontal, RotateCcw } from "lucide-react";
+import { X, SlidersHorizontal, RotateCcw, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { OpenHouseListing } from "@/lib/mapbox/utils";
 
@@ -30,11 +31,14 @@ const BATHROOM_OPTIONS = [
   { value: "3+", label: "3+" },
 ];
 
+export type DateRange = 'all' | 'today' | 'tomorrow' | 'week' | 'weekend'; // Reordered with 'all' first
+
 export type FilterState = {
   minPrice: string;
   maxPrice: string;
   bedrooms: string[];
   bathrooms: string;
+  dateRange: DateRange;
 };
 
 const DEFAULT_FILTERS: FilterState = {
@@ -42,6 +46,7 @@ const DEFAULT_FILTERS: FilterState = {
   maxPrice: "",
   bedrooms: ["any"],
   bathrooms: "any",
+  dateRange: 'all', // Default to showing all open houses
 };
 
 // Removed localStorage utility functions - now handled by context
@@ -62,7 +67,7 @@ export default function MapFilters({
   setIsExpanded: externalSetIsExpanded 
 }: MapFiltersProps) {
   const [internalIsExpanded, setInternalIsExpanded] = useState(false);
-  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const { filters, setFilters } = useMapState() || { filters: DEFAULT_FILTERS, setFilters: () => {} };
   
   // Use either external or internal expanded state
   const isExpanded = externalIsExpanded !== undefined ? externalIsExpanded : internalIsExpanded;
@@ -79,8 +84,6 @@ export default function MapFilters({
     setIsExpanded(false);
     if (onCollapse) onCollapse();
   };
-
-  // No longer loading filters from localStorage directly - now handled by context
 
   // Handle min price change
   const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,6 +135,13 @@ export default function MapFilters({
   // Handle bathroom selection
   const handleBathroomChange = (value: string) => {
     const newFilters = { ...filters, bathrooms: value };
+    setFilters(newFilters);
+    onFiltersChange(newFilters);
+  };
+
+  // Handle date range change
+  const handleDateRangeChange = (range: DateRange) => {
+    const newFilters = { ...filters, dateRange: range };
     setFilters(newFilters);
     onFiltersChange(newFilters);
   };
@@ -214,6 +224,34 @@ export default function MapFilters({
         
         {isExpanded && (
           <CardContent className="pb-3 pt-0 grid gap-3">
+            <div>
+              <p className="text-sm mb-1.5 font-medium">When</p>
+              <div className="flex flex-wrap gap-1.5 -mx-1.5 px-1.5">
+                {[
+                  { value: 'all', label: 'All' },
+                  { value: 'today', label: 'Today' },
+                  { value: 'tomorrow', label: 'Tomorrow' },
+                  { value: 'week', label: 'This Week' },
+                  { value: 'weekend', label: 'This Weekend' },
+                ].map(({ value, label }) => (
+                  <Button
+                    key={value}
+                    variant={filters.dateRange === value ? "secondary" : "secondary"}
+                    size="sm"
+                    className={cn(
+                      "flex-shrink-0 text-center whitespace-nowrap px-2",
+                      filters.dateRange === value
+                        ? "bg-gray-800 hover:bg-gray-900 text-white"
+                        : "bg-white hover:bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                    )}
+                    onClick={() => handleDateRangeChange(value as DateRange)}
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <p className="text-sm mb-1.5 font-medium">Min Price ($)</p>
@@ -235,18 +273,18 @@ export default function MapFilters({
             
             <div>
               <p className="text-sm mb-1.5 font-medium">Bedrooms</p>
-              <div className="grid grid-cols-6 gap-1.5"> {/* Force 6 columns to fit all options in one row */}
+              <div className="flex flex-nowrap gap-1.5 w-full overflow-x-auto pb-1"> {/* Flex container that keeps all items in one row */}
                 {BEDROOM_OPTIONS.map(option => (
                   <Button
                     key={option.value}
-                    variant={filters.bedrooms.includes(option.value) ? "default" : "outline"}
+                    variant={filters.bedrooms.includes(option.value) ? "secondary" : "outline"}
                     size="sm"
                     className={cn(
-                      "flex-1 min-w-[40px]",
+                      "flex-shrink-0 text-center",
+                      option.value === "studio" ? "w-15" : "w-10", // Wider for Studio
                       filters.bedrooms.includes(option.value)
-                        ? "bg-blue-600 hover:bg-blue-700 text-white"
-                        : "bg-white hover:bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600",
-                      option.value === "studio" ? "px-3" : "" // Add more padding specifically for Studio
+                        ? "bg-gray-800 hover:bg-gray-900 text-white"
+                        : "bg-white hover:bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
                     )}
                     onClick={() => handleBedroomChange(option.value)}
                   >
@@ -262,9 +300,14 @@ export default function MapFilters({
                 {BATHROOM_OPTIONS.map(option => (
                   <Button
                     key={option.value}
-                    variant={filters.bathrooms === option.value ? "default" : "outline"}
+                    variant={filters.bathrooms === option.value ? "secondary" : "outline"}
                     size="sm"
-                    className="w-full px-2.5" // Increased px
+                    className={cn(
+                      "w-full px-2.5 text-center justify-center",
+                      filters.bathrooms === option.value 
+                        ? "bg-gray-800 hover:bg-gray-900 text-white"
+                        : "bg-white hover:bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                    )}
                     onClick={() => handleBathroomChange(option.value)}
                   >
                     {option.label}
@@ -283,12 +326,114 @@ export default function MapFilters({
   );
 }
 
+// Helper function to parse date string in format 'Tuesday, Jul 1' to a Date object
+function parseDisplayDate(dateStr: string): Date | null {
+  if (!dateStr) return null;
+  
+  try {
+    // Handle 'Today' and 'Tomorrow' special cases
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (dateStr === 'Today') return today;
+    
+    if (dateStr === 'Tomorrow') {
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      return tomorrow;
+    }
+    
+    // Handle 'Weekday, Month Day' format (e.g., 'Tuesday, Jul 1')
+    const dateParts = dateStr.split(', ');
+    if (dateParts.length === 2) {
+      const [_, monthDay] = dateParts;
+      const [month, day] = monthDay.split(' ');
+      
+      // Get current year
+      const year = today.getFullYear();
+      // Create a date in the current year
+      const date = new Date(`${month} ${day}, ${year}`);
+      
+      // If the date is in the past, try next year
+      if (date < today) {
+        date.setFullYear(year + 1);
+      }
+      
+      return date;
+    }
+    
+    return null;
+  } catch (error) {
+    // Handle date parsing error
+    return null;
+  }
+}
+
+// Helper function to check if a date is within a date range
+function isDateInRange(dateString: string, range: DateRange): boolean {
+
+  
+  // If no date range is selected, include all
+  if (range === 'all') return true;
+  
+  // Parse the listing date
+  const listingDate = parseDisplayDate(dateString);
+  if (!listingDate) {
+
+    return true; // Include if we can't parse the date
+  }
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  // Calculate date ranges
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  
+  // End of week (next Sunday)
+  const endOfWeek = new Date(today);
+  endOfWeek.setDate(today.getDate() + (7 - today.getDay()));
+  
+  // Weekend (next Saturday to Sunday)
+  const startOfWeekend = new Date(today);
+  startOfWeekend.setDate(today.getDate() + (6 - today.getDay()));
+  
+  const endOfWeekend = new Date(startOfWeekend);
+  endOfWeekend.setDate(startOfWeekend.getDate() + 1);
+  
+  // Convert listing date to start of day for comparison
+  const listingDateStart = new Date(listingDate);
+  listingDateStart.setHours(0, 0, 0, 0);
+  
+  // Date comparison values removed
+  
+  // Compare dates
+  switch (range) {
+    case 'today':
+      return listingDateStart.getTime() === today.getTime();
+    case 'tomorrow':
+      return listingDateStart.getTime() === tomorrow.getTime();
+    case 'weekend':
+      return listingDateStart >= startOfWeekend && listingDateStart <= endOfWeekend;
+    case 'week':
+      return listingDateStart >= today && listingDateStart <= endOfWeek;
+    default:
+      return true;
+  }
+}
+
 // Helper function to filter listings based on filters
 export function filterListings(listings: OpenHouseListing[], filters: FilterState): OpenHouseListing[] {
   return listings.filter(listing => {
     const price = listing.properties.price;
     const bedrooms = listing.properties.bedrooms;
     const bathrooms = listing.properties.bathrooms;
+    const openHouseDate = listing.properties.openHouseDate || '';
+    
+    // Filter by date range
+    if (filters.dateRange && !isDateInRange(openHouseDate, filters.dateRange)) {
+      return false;
+    }
     
     // Filter by price
     if (filters.minPrice && price < parseInt(filters.minPrice)) return false;

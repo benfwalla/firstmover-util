@@ -61,7 +61,7 @@ export default function MapSearch() {
         const data = await res.json();
         setResults(data.suggestions ?? []);
       } catch (err) {
-        console.error("Geocoding error:", err);
+        // Geocoding error
         setResults([]);
       } finally {
         setIsSearching(false);
@@ -109,7 +109,7 @@ export default function MapSearch() {
         setIsOpen(false);
       }
     } catch (err) {
-      console.error("Retrieve error:", err);
+      // Retrieve error
     } finally {
       setIsSearching(false);
     }

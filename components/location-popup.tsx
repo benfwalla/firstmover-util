@@ -81,7 +81,7 @@ export function LocationPopup({ location, onClose }: LocationPopupProps) {
               className="w-full h-full object-cover"
             />
             <div className="absolute top-0 right-0 m-2">
-              <Badge variant="outline" className="bg-[#0171E5]/90 border-[#0171E5] text-white">
+              <Badge variant="outline" className="bg-[#0171E5]/95 border-[#0171E5] text-white">
                 {address.includes(',') ? address.split(',')[1].trim() : ''}
               </Badge>
             </div>
