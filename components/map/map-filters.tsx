@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useContext } from "react";
-import { MapStateContext, useMapState } from "@/context/map-state-context";
+import { useState } from "react";
+import { useMapState } from "@/context/map-state-context";
 import {
   Card,
   CardContent,
@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { X, SlidersHorizontal, RotateCcw, Calendar } from "lucide-react";
+import { X, SlidersHorizontal, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { OpenHouseListing } from "@/lib/mapbox/utils";
 
@@ -31,7 +31,7 @@ const BATHROOM_OPTIONS = [
   { value: "3+", label: "3+" },
 ];
 
-export type DateRange = 'all' | 'today' | 'tomorrow' | 'week' | 'weekend'; // Reordered with 'all' first
+export type DateRange = 'all' | 'today' | 'tomorrow' | 'week' | 'weekend';
 
 export type FilterState = {
   minPrice: string;
@@ -165,21 +165,40 @@ export default function MapFilters({
   const activeFilterCount = getActiveFilterCount();
 
   return (
-    <div className={cn(
-      "absolute top-4 z-10 transition-all duration-200",
-      // Mobile: Center horizontally
-      "left-1/2 -translate-x-1/2",
-      // Desktop: Align exactly 16px from left, matching the listing panel
-      "sm:left-[16px] sm:translate-x-0",
-      // Width adjustments: Expanded takes 340px on desktop, Collapsed takes auto width but limited max-width
-      isExpanded 
-        ? "w-[90vw] sm:w-[340px]" 
-        : activeFilterCount > 0 
-          ? "w-auto max-w-[240px]" // Increased max-width when filters are active and collapsed
-          : "w-auto max-w-[120px]" // Original smaller max-width when no filters are active
-    )}>
-      <Card className="shadow-lg overflow-hidden">
-        <div className="p-3 flex items-center justify-between">
+    <div className="relative">
+      {/* Overlay for mobile when expanded */}
+      {isExpanded && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 sm:hidden"
+          onClick={handleCollapse}
+        />
+      )}
+      
+      {/* Main filters container */}
+      <div className={cn(
+        "absolute z-50 transition-all duration-200",
+        // Position in top left when collapsed
+        "top-4 left-4",
+        // When expanded on mobile, take full screen
+        isExpanded && "fixed inset-0 flex items-start justify-center sm:items-start sm:justify-start sm:absolute sm:inset-auto sm:top-4 sm:left-4"
+      )}>
+        <Card className={cn(
+          // Base styles
+          "shadow-lg overflow-y-auto",
+          // Background colors
+          "bg-white dark:bg-gray-800",
+          // Normal card size when collapsed
+          !isExpanded && "w-auto max-h-[90vh]",
+          // Expanded styles
+          isExpanded && [
+            "w-full sm:w-[340px] max-h-[90vh]",
+            "flex flex-col"
+          ]
+        )}>
+          <div className={cn(
+            "p-3 flex items-center justify-between",
+            isExpanded && "sticky top-0 bg-white dark:bg-gray-800 z-10 border-b"
+          )}>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5">
               <Button 
@@ -242,7 +261,7 @@ export default function MapFilters({
                       "flex-shrink-0 text-center whitespace-nowrap px-2",
                       filters.dateRange === value
                         ? "bg-gray-800 hover:bg-gray-900 text-white"
-                        : "bg-white hover:bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                        : "bg-white border border-gray-300 hover:bg-gray-100 text-gray-800 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-600"
                     )}
                     onClick={() => handleDateRangeChange(value as DateRange)}
                   >
@@ -316,12 +335,13 @@ export default function MapFilters({
               </div>
             </div>
 
-            <div className="text-xs text-center text-muted-foreground mt-1">
+            <div className="text-xs text-center text-muted-foreground mt-1 pb-4">
               Specific times might be out of date. Please check the listing&apos;s StreetEasy page to confirm.
             </div>
           </CardContent>
         )}
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -363,7 +383,7 @@ function parseDisplayDate(dateStr: string): Date | null {
     }
     
     return null;
-  } catch (error) {
+  } catch (_error) {
     // Handle date parsing error
     return null;
   }

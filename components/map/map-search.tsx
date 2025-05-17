@@ -60,7 +60,7 @@ export default function MapSearch() {
 
         const data = await res.json();
         setResults(data.suggestions ?? []);
-      } catch (err) {
+      } catch (_err) {
         // Geocoding error
         setResults([]);
       } finally {
@@ -108,7 +108,7 @@ export default function MapSearch() {
         setResults([]);
         setIsOpen(false);
       }
-    } catch (err) {
+    } catch (_err) {
       // Retrieve error
     } finally {
       setIsSearching(false);

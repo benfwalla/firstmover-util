@@ -60,7 +60,7 @@ export async function fetchUpcomingOpenHouses(): Promise<OpenHouseData[]> {
     }
     
     return data;
-  } catch (error) {
+  } catch (_error) {
     // Error fetching open houses
     // Return empty array instead of throwing to avoid breaking the UI
     return [];

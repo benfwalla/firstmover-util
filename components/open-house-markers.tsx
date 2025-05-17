@@ -205,8 +205,8 @@ export default function OpenHouseMarkers() {
         setError(null);
         
         // Log Supabase URL and key prefix to debug (we'll mask most of the key)
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'Not set';
-        const anonKeyPrefix = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY 
+        const _supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'Not set';
+        const _anonKeyPrefix = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY 
           ? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.substring(0, 8) + '...' 
           : 'Not set';
         
@@ -236,7 +236,7 @@ export default function OpenHouseMarkers() {
           setOpenHouses(validListings);
           // Immediate filter based on current filters
           setFilteredHouses(filterListings(validListings, filters));
-        } catch (error) {
+        } catch (_error) {
           // Error processing listings
           // Fallback to sample data
           setOpenHouses(SAMPLE_OPEN_HOUSES);
@@ -244,7 +244,7 @@ export default function OpenHouseMarkers() {
         } finally {
         }
         
-      } catch (err) {
+      } catch (_err) {
         // Error fetching open houses
         setError('Failed to load open houses');
         // Fallback to sample data

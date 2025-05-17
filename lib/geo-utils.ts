@@ -17,7 +17,7 @@ export async function geocodeAddress(address: string): Promise<[number, number] 
     }
     
     return null;
-  } catch (error) {
+  } catch (_error) {
     // Error geocoding address
     return null;
   }
@@ -89,7 +89,7 @@ export function formatOpenHouseDateTime(
       date: dateString,
       time: `${formattedStartTime} - ${formattedEndTime}`
     };
-  } catch (error) {
+  } catch (_error) {
     // Error formatting date time
     // Fallback to basic formatting
     return {
@@ -190,7 +190,7 @@ export async function convertToMapListing(openHouse: OpenHouseData): Promise<Ope
     };
     
     return listing;
-  } catch (error) {
+  } catch (_error) {
     // Error converting to map listing
     return null;
   }
